@@ -1,0 +1,87 @@
+{
+  "name": "svg-loader",
+  "version": "1.0.0",
+  "description": "Load SVG files as Vue components",
+  "keywords": [
+    "vite-plugin",
+    "webpack-loader",
+    "vite",
+    "webpack",
+    "vue",
+    "svg"
+  ],
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.mjs",
+  "types": "./dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./vite": {
+      "types": "./dist/types/vite-plugin.d.ts",
+      "import": "./dist/vite-plugin.mjs",
+      "require": "./dist/vite-plugin.cjs"
+    },
+    "./webpack": {
+      "types": "./dist/types/webpack-loader.d.ts",
+      "import": "./dist/webpack-loader.mjs",
+      "require": "./dist/webpack-loader.cjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "npm run build:types && npm run build:js",
+    "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist/types",
+    "build:js": "rollup -c",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint src --ext .ts",
+    "test": "npm run test:unit",
+    "test:unit": "mocha --require ts-node/register --reporter spec --extension ts 'test/**/*.test.ts'",
+    "test:watch": "mocha --require ts-node/register --reporter spec --extension ts --watch 'test/**/*.test.ts'",
+    "test:coverage": "nyc npm run test:unit"
+  },
+  "devDependencies": {
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/chai": "^4.3.5",
+    "@types/loader-utils": "^2.0.3",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^20.0.0",
+    "@types/sinon": "^10.0.15",
+    "@types/webpack": "^5.28.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "chai": "^4.3.7",
+    "eslint": "^8.0.0",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "rollup": "^3.0.0",
+    "sinon": "^15.2.0",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "tslib": "^2.5.0",
+    "typescript": "^5.0.0"
+  },
+  "peerDependencies": {
+    "vue": ">=3.2.13"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpkleemans/vite-svg-loader.git"
+  },
+  "author": {
+    "name": "Karlen Pireverdiev",
+    "email": "ll.karlen@gmail.com"
+  },
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jpkleemans/vite-svg-loader/issues"
+  },
+  "homepage": "https://github.com/jpkleemans/vite-svg-loader#readme"
+}

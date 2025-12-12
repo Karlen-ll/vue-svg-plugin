@@ -1,0 +1,14 @@
+node_modules
+dist
+
+# Editor directories
+.vscode
+.idea
+
+# Tests
+coverage/
+.nyc_output/
+
+# Others
+*.log
+.DS_Store
