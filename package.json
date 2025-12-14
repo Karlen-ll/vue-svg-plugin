@@ -1,79 +1,90 @@
 {
-  "name": "svg-loader",
+  "name": "vue-svg-plugin",
   "version": "1.0.0",
   "description": "Load SVG files as Vue components",
   "keywords": [
-    "vite-plugin",
-    "webpack-loader",
-    "vite",
+    "component",
+    "plugin",
+    "loader",
     "webpack",
+    "rspack",
+    "vite",
     "vue",
     "svg"
   ],
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.mjs",
-  "types": "./dist/types/index.d.ts",
+  "main": "./dist/core.cjs",
+  "module": "./dist/core.mjs",
+  "types": "./dist/core.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.cjs"
+      "types": "./dist/core.d.ts",
+      "import": "./dist/core.mjs",
+      "require": "./dist/core.cjs"
     },
     "./vite": {
-      "types": "./dist/types/vite-plugin.d.ts",
+      "types": "./dist/vite-plugin.d.ts",
       "import": "./dist/vite-plugin.mjs",
       "require": "./dist/vite-plugin.cjs"
     },
     "./webpack": {
-      "types": "./dist/types/webpack-loader.d.ts",
+      "types": "./dist/webpack-plugin.d.ts",
+      "import": "./dist/webpack-plugin.mjs",
+      "require": "./dist/webpack-plugin.cjs"
+    },
+    "./webpack-loader": {
+      "types": "./dist/webpack-loader.d.ts",
       "import": "./dist/webpack-loader.mjs",
       "require": "./dist/webpack-loader.cjs"
+    },
+    "./types": {
+      "types": "./types/index.d.ts"
     }
   },
   "files": [
     "dist",
+    "types",
     "README.md",
+    "CHANGELOG.md",
     "LICENSE"
   ],
   "scripts": {
-    "build": "npm run build:types && npm run build:js",
-    "build:types": "tsc --declaration --emitDeclarationOnly --outDir dist/types",
-    "build:js": "rollup -c",
-    "prepublishOnly": "npm run build",
-    "lint": "eslint src --ext .ts",
-    "test": "npm run test:unit",
-    "test:unit": "mocha --require ts-node/register --reporter spec --extension ts 'test/**/*.test.ts'",
-    "test:watch": "mocha --require ts-node/register --reporter spec --extension ts --watch 'test/**/*.test.ts'",
-    "test:coverage": "nyc npm run test:unit"
-  },
-  "devDependencies": {
-    "@rollup/plugin-typescript": "^11.0.0",
-    "@types/chai": "^4.3.5",
-    "@types/loader-utils": "^2.0.3",
-    "@types/mocha": "^10.0.1",
-    "@types/node": "^20.0.0",
-    "@types/sinon": "^10.0.15",
-    "@types/webpack": "^5.28.0",
-    "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0",
-    "chai": "^4.3.7",
-    "eslint": "^8.0.0",
-    "mocha": "^10.2.0",
-    "nyc": "^15.1.0",
-    "rollup": "^3.0.0",
-    "sinon": "^15.2.0",
-    "ts-node": "^10.9.1",
-    "tsconfig-paths": "^4.2.0",
-    "tslib": "^2.5.0",
-    "typescript": "^5.0.0"
+    "build": "rollup -c",
+    "build:pack": "npm run build && npm pack",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
+    "test": "vitest run",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
-    "vue": ">=3.2.13"
+    "vue": "^3.2.25"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.2",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@rollup/plugin-typescript": "^11.0.0",
+    "@types/node": "^20.0.0",
+    "@vitest/coverage-istanbul": "^4.0.17",
+    "eslint": "^9.39.2",
+    "globals": "^16.5.0",
+    "jiti": "^2.6.1",
+    "rollup": "^3.0.0",
+    "rollup-plugin-dts": "6.3.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.49.0",
+    "vite": "^7.3.1",
+    "vitest": "^4.0.15",
+    "webpack": "^5.104.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/jpkleemans/vite-svg-loader.git"
+    "url": "git+https://github.com/Karlen-ll/vue-svg-plugin.git"
   },
   "author": {
     "name": "Karlen Pireverdiev",
@@ -81,7 +92,7 @@
   },
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/jpkleemans/vite-svg-loader/issues"
+    "url": "https://github.com/Karlen-ll/vue-svg-plugin/issues"
   },
-  "homepage": "https://github.com/jpkleemans/vite-svg-loader#readme"
+  "homepage": "https://github.com/Karlen-ll/vue-svg-plugin#readme"
 }

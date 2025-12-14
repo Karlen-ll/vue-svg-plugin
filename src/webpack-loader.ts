@@ -1,55 +1,46 @@
-import { compileTemplate } from 'vue/compiler-sfc'
-import type { WebpackLoaderContext } from './types'
-import { SVG_QUERY_REGEX } from "@/const";
-import { getErrorMessage } from "@/utils";
+import transform from '@/core';
+import { getImportType } from '@/utils/importType';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import type { VueSvgPluginOptions } from '@/types';
+import type { LoaderContext } from 'webpack';
 
-export default function webpackSvgLoader(
-  this: WebpackLoaderContext,
-  source: string
+export type SvgLoaderOptions = VueSvgPluginOptions
+
+/**
+ * Webpack/Rspack loader for transforming SVG files
+ */
+export default function webpackLoader(
+  this: LoaderContext<SvgLoaderOptions>,
+  code: string
 ) {
-  if (!this.getOptions) {
-    return
+  const options = this.getOptions();
+  this.cacheable(true);
+
+  const importType = getImportType(this.resourceQuery, options);
+
+  if (importType === 'url') {
+    this.callback(null, code);
+    return;
   }
 
-  const options = this.getOptions()
-  const {
-    defaultImport,
-    silent = false,
-  } = options
+  try {
+    const result = transform({
+      code,
+      importType,
+      path: this.resourcePath,
+      compileOptions: { ...options?.compileOptions, isProd: this.mode === 'production' },
+      transform: options?.transform,
+    });
 
-  // Проверяем, должен ли этот loader обрабатывать файл
-  const resourcePath = this.resourcePath
-
-  // Для проверки используем полный путь с query
-  const fullResource = resourcePath + (this.resourceQuery || '')
-
-  if (!fullResource.match(SVG_QUERY_REGEX)) {
-    return source
-  }
-
-  const query = this.resourceQuery?.replace('?', '') || ''
-  const importType = query || defaultImport
-
-  if (importType === 'raw') {
-    return `export default ${JSON.stringify(source)}`
-  }
-
-  // To prevent compileTemplate from removing the style tag
-  const svg = source.replace(/<style/g, '<component is="style"').replace(/<\/style/g, '</component')
-
-  const { code, errors } = compileTemplate({
-    id: JSON.stringify(fullResource),
-    source: svg,
-    filename: resourcePath,
-    transformAssetUrls: false
-  })
-
-  if (errors?.length > 0) {
-    if (!silent) {
-      console.error(getErrorMessage(`Failed to compile SVG ${resourcePath}:\n${errors.join('\n')}`))
+    if (result?.tips?.length) {
+      this.emitWarning(new Error(result.tips.join('\n')));
     }
-    return source
-  }
 
-  return `${code}\nexport default { render: render }`
+    this.callback(null, result?.code);
+  } catch (error) {
+    this.emitWarning(new Error(getErrorMessage(error)));
+    this.callback(null, code);
+
+    return;
+  }
 }

@@ -1,16 +1,22 @@
 declare module '*.svg' {
-  import { FunctionalComponent, SVGAttributes } from 'vue'
-  const src: FunctionalComponent<SVGAttributes>
-  export default src
+  const src: string;
+  export default src;
 }
 
 declare module '*.svg?raw' {
-  const src: string
-  export default src
+  const src: string;
+  export default src;
 }
 
 declare module '*.svg?component' {
-  import { FunctionalComponent, SVGAttributes } from 'vue'
-  const src: FunctionalComponent<SVGAttributes>
-  export default src
+  import type { FunctionalComponent, SVGAttributes } from 'vue';
+
+  const component: FunctionalComponent<SVGAttributes>;
+  export default component;
 }
+
+// declare module '*.svg?component' {
+//   import { defineComponent } from 'vue';
+//   const Component: ReturnType<typeof defineComponent>;
+//   export default Component;
+// }

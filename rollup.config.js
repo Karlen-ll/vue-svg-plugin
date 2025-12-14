@@ -1,59 +1,44 @@
-import typescript from '@rollup/plugin-typescript';
 import { defineConfig } from 'rollup';
+import typescript from '@rollup/plugin-typescript';
+import terser from '@rollup/plugin-terser';
+import { dts } from 'rollup-plugin-dts';
+
+const CONFIG_PATH = './tsconfig.json';
+
+/**
+ * Creates a Rollup configuration for bundling a source file into CommonJS and ESM formats,
+ * along with declaration (.d.ts) file generation.
+ *
+ * @param {string} fileName - The name of the file (without extension)
+ * @returns {import('rollup').RollupOptions[]}
+ */
+function includeFile(fileName) {
+  const isCore = fileName === 'core';
+
+  return [
+    {
+      input: `src/${fileName}.ts`,
+      output: [
+        { file: `dist/${fileName}.cjs`, format: 'cjs', exports: isCore ? 'named' : 'default' },
+        { file: `dist/${fileName}.mjs`, format: 'esm' }
+      ],
+      external: ['vue/compiler-sfc'],
+      plugins: [
+        typescript({ tsconfig: CONFIG_PATH, compilerOptions: { removeComments: true } }),
+        terser({ format: { comments: false } })
+      ]
+    },
+    {
+      input: `src/${fileName}.ts`,
+      output: [{ file: `dist/${fileName}.d.ts`, format: 'esm' }],
+      plugins: [dts({ tsconfig: CONFIG_PATH })]
+    }
+  ];
+}
 
 export default defineConfig([
-  {
-    input: 'src/index.ts',
-    output: [
-      {
-        file: 'dist/index.cjs',
-        format: 'cjs',
-        exports: 'named'
-      },
-      {
-        file: 'dist/index.mjs',
-        format: 'es'
-      }
-    ],
-    external: ['vue/compiler-sfc', 'node:fs'],
-    plugins: [
-      typescript({ tsconfig: './tsconfig.json' })
-    ]
-  },
-  {
-    input: 'src/vite-plugin.ts',
-    output: [
-      {
-        file: 'dist/vite-plugin.cjs',
-        format: 'cjs',
-        exports: 'default'
-      },
-      {
-        file: 'dist/vite-plugin.mjs',
-        format: 'es'
-      }
-    ],
-    external: ['vue/compiler-sfc', 'node:fs'],
-    plugins: [
-      typescript({ tsconfig: './tsconfig.json' })
-    ]
-  },
-  {
-    input: 'src/webpack-loader.ts',
-    output: [
-      {
-        file: 'dist/webpack-loader.cjs',
-        format: 'cjs',
-        exports: 'default'
-      },
-      {
-        file: 'dist/webpack-loader.mjs',
-        format: 'es'
-      }
-    ],
-    external: ['vue/compiler-sfc'],
-    plugins: [
-      typescript({ tsconfig: './tsconfig.json' })
-    ]
-  }
+  ...includeFile('core'),
+  ...includeFile('vite-plugin'),
+  ...includeFile('webpack-plugin'),
+  ...includeFile('webpack-loader'),
 ]);

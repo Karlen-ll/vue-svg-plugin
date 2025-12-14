@@ -1,58 +1,63 @@
-import { promises as fs } from 'node:fs'
-import { compileTemplate } from 'vue/compiler-sfc'
-import { getErrorMessage } from "@/utils";
-import { SVG_QUERY_REGEX } from "@/const";
-import type { VitePlugin, SvgLoaderOptions } from './types'
+import transform from '@/core';
+import { safePath } from '@/utils/safePath';
+import { getImportType } from '@/utils/importType';
+import { getErrorMessage } from '@/utils/getErrorMessage';
+import type { VueSvgPluginOptions } from '@/types';
+import type { Plugin } from 'vite';
 
-export default function viteSvgPlugin(options: SvgLoaderOptions = {}) {
-  const { defaultImport, silent = false } = options
+export type SvgPluginOptions = VueSvgPluginOptions & { regex?: RegExp }
 
-  const plugin: VitePlugin = {
-    name: 'svg-loader',
+const DEFAULT_REGEX = /\.svg(\?(url|raw|component))?$/i;
+
+/**
+ * Vite plugin for transforming SVG files
+ * @desc Default regex = `/\.svg(\?(url|raw|component))?$/i`
+ */
+export default function vitePlugin(options?: SvgPluginOptions) {
+  let isProd = false;
+  const regex = options?.regex || DEFAULT_REGEX;
+
+  const plugin: Plugin = {
+    name: 'vue-svg-plugin',
     enforce: 'pre',
 
-    async load(id: string) {
-      if (!id.match(SVG_QUERY_REGEX)) {
-        return
+    configResolved(config) {
+      isProd = config.isProduction;
+    },
+
+    async load(path: string) {
+      // Skip virtual modules
+      if (path.startsWith('virtual:') || path.startsWith('\0') || !regex.test(path)) {
+        return;
       }
 
-      const [path, query] = id.split('?', 2)
-      const importType = query || defaultImport
-      let svg: string
+      const importType = getImportType(path, options);
+
+      if (importType === 'url') {
+        return;
+      }
 
       try {
-        svg = await fs.readFile(path, 'utf-8')
+        const result = transform({
+          path,
+          importType,
+          code: await this.fs.readFile(safePath(path, false), { encoding: 'utf8' }),
+          compileOptions: { ...options?.compileOptions, isProd },
+          transform: options?.transform,
+        });
+
+        if (result?.tips?.length) {
+          this.warn(result.tips.join('\n'));
+        }
+
+        return result?.code;
       } catch (error) {
-        if (!silent) {
-          console.warn(getErrorMessage(`${id} couldn't be loaded, fallback to default loader`))
-        }
-        return
+        this.warn(getErrorMessage(error));
+
+        return null;
       }
-
-      if (importType === 'raw') {
-        return `export default ${JSON.stringify(svg)}`
-      }
-
-      // To prevent compileTemplate from removing the style tag
-      svg = svg.replace(/<style/g, '<component is="style"').replace(/<\/style/g, '</component')
-
-      const { code, errors } = compileTemplate({
-        id: JSON.stringify(id),
-        source: svg,
-        filename: path,
-        transformAssetUrls: false,
-        compilerOptions: {
-
-        }
-      })
-
-      if (errors?.length > 0) {
-        throw new Error(getErrorMessage(`Failed to compile SVG ${path}:\n${errors.join('\n')}`))
-      }
-
-      return `${code}\nexport default { render: render }`
     }
-  }
+  };
 
-  return plugin
+  return plugin;
 }

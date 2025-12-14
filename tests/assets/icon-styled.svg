@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <title>Styled SVG</title>
+  <style type="text/css">
+    .circle{fill:#3F37C9;}
+    .text{fill:#FFF;font-size:8px;font-weight:bold}
+  </style>
+
+  <circle class="circle" cx="12" cy="12" r="10"/>
+  <text class="text" x="4" y="14.75">SVG</text>
+</svg>

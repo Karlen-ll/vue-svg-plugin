@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+  <defs>
+    <!-- Define a circle with id -->
+    <circle id="defs-circle" fill="#3F37C9" r="10"/>
+  </defs>
+
+  <use href="#defs-circle" x="12" y="12" />
+  <text x="4" y="14.75" fill="#fff" font-size="8px" font-weight="bold">SVG</text>
+</svg>
